@@ -57,6 +57,10 @@ Uses [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (cloned into `deps
 make clean   # remove deps/ and .test-state/
 ```
 
+## CI
+
+GitHub Actions runs `make test` on every pull request targeting `main` and on every push to `main` (including after merge). Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+
 ## Debugging
 
 **Verify the save autocmd is registered:**
