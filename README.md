@@ -6,51 +6,37 @@ Autosave your last Neovim colorscheme and restore it on startup — like VS Code
 
 ## Features
 
-- Saves the active colorscheme whenever it changes
-- Restores the saved theme on startup
-- Configurable fallback when the saved theme is missing or fails to load
-- One lazy.nvim entry for LazyVim or non-LazyVim setups
-- Preloads lazy-loaded colorscheme plugins when [lazy.nvim](https://github.com/folke/lazy.nvim) is present
-- **No picker required** — works with `:colorscheme`, existing pickers, or both
+- Saves your colorscheme whenever it changes
+- Restores it on the next startup
+- Configurable fallback if the saved theme is missing or fails to load
+- Works with LazyVim and plain Neovim setups
+- **No picker required** — use `:colorscheme`, Snacks, Telescope, or any switcher you already have
 
 ## No picker required (but works with one)
 
-This plugin does **not** ship a colorscheme picker. It only listens for the `ColorScheme` event and saves whatever theme Neovim loads.
+This plugin does **not** include a theme picker. It remembers whatever colorscheme Neovim loads.
 
-That means you can change themes however you already like:
+| How you switch | Works? |
+| --- | --- |
+| `:colorscheme tokyonight-night` | Yes |
+| LazyVim Snacks (`<leader>uC`) | Yes |
+| `:Telescope colorscheme` | Yes |
+| fzf-lua, mini.pick, themery.nvim, etc. | Yes, if it applies a colorscheme |
 
-| How you switch | Picker needed? | Saved automatically? |
-| --- | --- | --- |
-| `:colorscheme tokyonight-night` | No | Yes |
-| LazyVim Snacks (`<leader>uC`) | Uses your existing Snacks picker | Yes |
-| `:Telescope colorscheme` | Uses your existing Telescope setup | Yes |
-| fzf-lua, mini.pick, themery.nvim, etc. | Uses whatever you already installed | Yes, if it runs `:colorscheme` |
+You do not need a picker for this plugin. If you already use one, keep using it.
 
-**You do not need to install or configure a picker for this plugin to work.** If you already have one, keep using it — this plugin sits in the background and remembers your last choice.
+**Multi-variant themes** (e.g. `ayu-mirage`, `tokyonight-storm`, `catppuccin-mocha`) are saved and restored with the full variant name.
 
-### Multi-variant themes
-
-Themes with separate entries in `colors/` (e.g. `ayu-mirage`, `tokyonight-storm`, `catppuccin-mocha`) are saved by their full name (`ev.match`), not just the base `vim.g.colors_name` (`ayu`, `tokyonight`, etc.).
-
-### Single-entry themes with config variants
-
-Some themes only expose one picker entry (e.g. `sonokai`, `everforest`, `onedark`) and control variants via plugin config (`g:sonokai_style`, `require("onedark").setup({ style = "..." })`, etc.). This plugin saves the colorscheme **name**; set style/flavour options in your colorscheme plugin spec if you need a specific variant on restore.
+**Single-name themes** (e.g. `sonokai`, `everforest`, `onedark`) may use plugin config for style/flavour — this plugin saves the colorscheme name; set variant options in your colorscheme plugin if needed.
 
 ## Requirements
 
 - Neovim 0.9+
 - [lazy.nvim](https://github.com/folke/lazy.nvim) (recommended)
 
-## How it works
+## Installation
 
-1. **Save** — a `ColorScheme` autocmd writes the loaded scheme name (`ev.match`, e.g. `ayu-mirage`) to `~/.local/state/nvim/last-colorscheme`, falling back to `vim.g.colors_name` when needed.
-2. **Restore** — on startup, the saved name is applied with `:colorscheme`. If that fails, `fallback` is tried.
-
----
-
-## Installation & usage
-
-One spec for every setup — `import` auto-detects LazyVim (`lazyvim.json`, `LazyVim/LazyVim` in your lazy spec, or LazyVim on rtp):
+Add one entry to your lazy.nvim plugins. The `import` line auto-detects LazyVim:
 
 ```lua
 return {
@@ -64,81 +50,45 @@ return {
 }
 ```
 
-**Local development:**
-
-```lua
-return {
-  {
-    dir = "~/Projects/autosave-colorscheme.nvim",
-    name = "autosave-colorscheme.nvim",
-    opts = { fallback = "tokyonight" },
-    import = "autosave_colorscheme.import",
-  },
-}
-```
-
-### What `import` picks automatically
-
-| Your setup | Loaded specs |
-| --- | --- |
-| **LazyVim** | Plugin setup + LazyVim restore hook |
-| **Plain Neovim** | Plugin setup with `restore_on_startup = true` |
-
-Force a mode with `opts.lazyvim = true` or `opts.lazyvim = false` if auto-detect is wrong.
-
-### Manual imports (optional)
-
-| Import | Use when |
-| --- | --- |
-| `autosave_colorscheme.import` | **Recommended** — auto-detect |
-| `autosave_colorscheme.lazyvim` | Always use LazyVim hook |
-| `autosave_colorscheme.default` | Never use LazyVim hook |
-
-Then `:Lazy sync` and restart Neovim.
-
----
+Then run `:Lazy sync` and restart Neovim.
 
 ## Usage
 
 ### Change your theme
 
-Use **any** method that applies a colorscheme. No picker from this plugin is required.
+Use any method you like — command, Snacks, Telescope, or another picker:
 
-| How | Example | Notes |
-| --- | --- | --- |
-| Ex command | `:colorscheme sonokai` | Works out of the box |
-| LazyVim Snacks | `<leader>uC` | Uses Snacks picker you already have |
-| Telescope | `:Telescope colorscheme` | Works if Telescope is in your config |
-| Other pickers | themery.nvim, fzf-lua, mini.pick, … | Works as long as they call `:colorscheme` |
-| Custom command | `:ColorScheme` | Fine if it ultimately runs `:colorscheme` |
+```vim
+:colorscheme sonokai
+```
 
-The choice is saved automatically when the `ColorScheme` event fires — regardless of whether you used a picker or typed a command.
+Your choice is saved automatically.
 
 ### Restart Neovim
 
-Your last theme is restored on startup.
+Your last theme is applied on startup.
 
 ### Commands
 
 | Command | Action |
 | --- | --- |
-| `:AutosaveColorscheme restore` | Apply saved theme now (or fallback) |
-| `:AutosaveColorscheme reset` | Clear saved theme |
+| `:AutosaveColorscheme restore` | Apply the saved theme now (or fallback) |
+| `:AutosaveColorscheme reset` | Clear the saved theme |
+
+To clear the saved file manually:
 
 ```bash
 rm -f ~/.local/state/nvim/last-colorscheme
 ```
 
----
-
 ## Configuration
 
-Pass options via `opts` on your lazy spec (merged into `setup()`).
+Pass options via `opts` on your lazy spec:
 
-| Option | Default (LazyVim import) | Default (non-LazyVim) | Description |
+| Option | Default (LazyVim) | Default (plain Neovim) | Description |
 | --- | --- | --- | --- |
-| `path` | `stdpath("state")/last-colorscheme` | same | Persistence file |
-| `fallback` | `"default"` | same | One name or list when restore fails |
+| `path` | `stdpath("state")/last-colorscheme` | same | Where the theme name is stored |
+| `fallback` | `"default"` | same | Theme to use if restore fails (string or list) |
 | `restore_on_startup` | `false` | `true` | Restore on `VimEnter` |
 | `lazyvim` | auto | auto | Force LazyVim hook (`true`) or plain mode (`false`) |
 
@@ -150,31 +100,21 @@ opts = {
 },
 ```
 
----
-
-## Tests
-
-```bash
-make test
-```
-
-Uses [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (cloned into `deps/` on first run). Covers save/restore, fallback behavior, and `ColorScheme` autocmd variant persistence (`ev.match`).
-
----
-
 ## Troubleshooting
 
-**Theme not saved after picking in Snacks**
+**Theme not saved after I pick one**
 
-- Use `import = "autosave_colorscheme.import"` (or `.lazyvim` / `.default` manually).
-- After startup, `#vim.api.nvim_get_autocmds({ group = "autosave_colorscheme" })` should be `1`.
+- Confirm `import = "autosave_colorscheme.import"` is on your lazy spec.
+- Restart Neovim after changing the spec.
 
 **Wrong theme on startup (LazyVim)**
 
-- Use `import = "autosave_colorscheme.import"` (auto) or `.lazyvim` explicitly.
-- Check `~/.local/state/nvim/last-colorscheme` has the expected name.
+- Check `~/.local/state/nvim/last-colorscheme` contains the theme name you expect.
+- Run `:AutosaveColorscheme reset`, pick your theme again, and restart.
 
----
+**Saved variant wrong (e.g. Ayu Mirage becomes Ayu Dark)**
+
+- Pick the variant again from your picker, or run `:colorscheme ayu-mirage` directly, then restart.
 
 ## License
 
