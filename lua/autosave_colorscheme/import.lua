@@ -1,5 +1,5 @@
 --- Auto-detect LazyVim and return the correct lazy.nvim specs.
---- Use: { "alexesba/colorscheme-persist.nvim", opts = { ... }, import = "colorscheme_persist.import" }
+--- Use: { "alexesba/autosave-colorscheme.nvim", opts = { ... }, import = "autosave_colorscheme.import" }
 
 local function script_dir()
   local src = debug.getinfo(1, "S").source
@@ -9,7 +9,7 @@ end
 local function load_spec(path)
   local loader = loadfile(path)
   if not loader then
-    error("colorscheme-persist: failed to load " .. path)
+    error("autosave-colorscheme: failed to load " .. path)
   end
   return loader()
 end

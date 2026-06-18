@@ -1,1 +1,3 @@
 nvim.log
+deps/
+.test-state/
